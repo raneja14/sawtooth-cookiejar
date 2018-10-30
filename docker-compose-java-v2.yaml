@@ -60,7 +60,7 @@ services:
     image: hyperledger/sawtooth-settings-tp:1.0
     depends_on:
       - validator-2
-    command: settings-tp -vv --connect tcp://validator:4004
+    command: settings-tp -vv --connect tcp://validator-2:4004
 
   rest-api:
     image: hyperledger/sawtooth-rest-api:1.0
@@ -69,9 +69,9 @@ services:
       - 8008
     command: |
       bash -c "
-        sawtooth-rest-api \
+        sawtooth-rest-api -vvv \
           --connect tcp://validator-2:4004 \
-          --bind 192.168.1.94:8008
+          --bind rest-api:8008
       "
     stop_signal: SIGKILL
 
@@ -87,7 +87,7 @@ services:
 
   validator-2:
     image: hyperledger/sawtooth-validator:1.0
-    container_name: sawtooth-validator-default-2
+    container_name: validator-2
     expose:
       - 4004
       - 8800
@@ -95,10 +95,10 @@ services:
       bash -c "
         sawadm keygen --force && \
         sawtooth-validator -v \
-            --bind network:tcp://eno1:8800 \
-            --bind component:tcp://127.0.0.1:4004 \
+            --bind network:tcp://eth0:8800 \
+            --bind component:tcp://eth0:4004 \
             --peering dynamic \
-            --endpoint tcp://192.168.1.94:8800 \
+            --endpoint tcp://validator-2:8800 \
             --seeds tcp://192.168.1.42:8800 \
             --scheduler parallel \
             --network trust
