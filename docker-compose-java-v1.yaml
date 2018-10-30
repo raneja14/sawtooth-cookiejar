@@ -60,7 +60,7 @@ services:
     image: hyperledger/sawtooth-settings-tp:1.0
     depends_on:
       - validator-1
-    command: settings-tp -vv --connect tcp://validator:4004
+    command: settings-tp -vv --connect tcp://validator-1:4004
 
   rest-api:
     image: hyperledger/sawtooth-rest-api:1.0
@@ -69,9 +69,9 @@ services:
       - 8008
     command: |
       bash -c "
-        sawtooth-rest-api \
+        sawtooth-rest-api -vvv\
           --connect tcp://validator-1:4004 \
-          --bind 192.168.1.93:8008
+          --bind rest-api:8008
       "
     stop_signal: SIGKILL
 
@@ -114,10 +114,10 @@ services:
         sawadm genesis \
           config-genesis.batch config.batch poet.batch poet-settings.batch && \
         sawtooth-validator -v \
-          --bind network:tcp://eno1:8800 \
-          --bind component:tcp://127.0.0.1:4004 \
+          --bind network:tcp://eth0:8800 \
+          --bind component:tcp://eth0:4004 \
           --peering dynamic \
-          --endpoint tcp://192.168.1.93:8800 \
+          --endpoint tcp://validator-1:8800 \
           --seeds tcp://192.168.1.42:8800 \
           --scheduler parallel \
           --network trust
